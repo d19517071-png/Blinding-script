@@ -1,0 +1,51 @@
+-- Place this in a LocalScript (runs on the client only to avoid server lag)
+local Players = game:GetService("Players")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+
+-- Create a safe, configurable bright GUI
+local BrightGui = Instance.new("ScreenGui")
+BrightGui.Name = "SafeBrightDemo"
+BrightGui.Parent = PlayerGui
+
+local BrightFrame = Instance.new("Frame")
+BrightFrame.Size = UDim2.new(1, 0, 1, 0) -- Covers entire screen
+BrightFrame.BackgroundTransparency = 1 -- Start invisible
+BrightFrame.BackgroundColor3 = Color3.new(1, 1, 1) -- White (brightest safe color)
+BrightFrame.Parent = BrightGui
+
+-- Config (adjust to make safer)
+local MAX_BRIGHTNESS = 0.5 -- 0 = invisible, 1 = fully opaque (keep below 0.7 for safety)
+local FLASH_SPEED = 0.5 -- Seconds per fade cycle (slower = safer)
+local ENABLED = false -- Toggle with key press
+
+-- Toggle effect with "F" key
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F then
+        ENABLED = not ENABLED
+        print(ENABLED and "Bright demo enabled (SAFE MODE)" or "Bright demo disabled")
+    end
+end)
+
+-- Optimized animation loop (no lag — uses RunService.Heartbeat efficiently)
+RunService.Heartbeat:Connect(function(deltaTime)
+    if not ENABLED then
+        BrightFrame.BackgroundTransparency = 1
+        return
+    end
+
+    -- Smooth fade (no harsh flashing)
+    local alpha = math.sin(os.clock() * math.pi / FLASH_SPEED) * 0.5 + 0.5
+    BrightFrame.BackgroundTransparency = 1 - (alpha * MAX_BRIGHTNESS)
+end)
+
+-- Safety warning in console
+warn([[
+=== SAFETY NOTICE ===
+This script is for PERSONAL USE ONLY.
+- Keep MAX_BRIGHTNESS below 0.7 to avoid discomfort.
+- Avoid using around individuals with photosensitive epilepsy.
+- Do not use in public Roblox games (violates community guidelines).
+]])
+
