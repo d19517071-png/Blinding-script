@@ -1,0 +1,45 @@
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+-- SETTINGS
+local BLIND_ENABLED = true
+local USE_BLUR = true
+local BLUR_SIZE = 24
+
+-- Create blur effect
+local blur = Lighting:FindFirstChild("GlobalBlindBlur")
+if not blur and USE_BLUR then
+	blur = Instance.new("BlurEffect")
+	blur.Name = "GlobalBlindBlur"
+	blur.Size = BLUR_SIZE
+	blur.Parent = Lighting
+end
+
+-- Function to blind a player
+local function blindPlayer(player)
+	if player:FindFirstChild("PlayerGui") then
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "BlindGui"
+		gui.ResetOnSpawn = false
+
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(1, 0, 1, 0)
+		frame.BackgroundColor3 = Color3.new(0, 0, 0)
+		frame.BackgroundTransparency = 0
+		frame.Parent = gui
+
+		gui.Parent = player.PlayerGui
+	end
+end
+
+-- Apply to existing players
+for _, player in pairs(Players:GetPlayers()) do
+	blindPlayer(player)
+end
+
+-- Apply to new players
+Players.PlayerAdded:Connect(function(player)
+	player.CharacterAdded:Wait()
+	task.wait(1)
+	blindPlayer(player)
+end)
